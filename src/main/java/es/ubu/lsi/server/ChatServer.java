@@ -1,31 +1,23 @@
 package es.ubu.lsi.server;
-/**
-* Clase que abre un servidor socket en el puerto 1500, maneja multiples clientes 
-* usando una lista y recibe los mensajes de los clientes y los reenvia a todos.
-* 
-* @author <a href="erd1005@alu.ubu.es"> Elisa Rodríguez Domínguez </a>
-* @since 1.0
-* @version 1.0
-*/
+
+import es.ubu.lsi.common.Message;
+import es.ubu.lsi.common.MessageType;
+
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ChatServer {
-	
-	// Puerto del servidor, voy a usar 1600 porque el 1500 lo tengo en uso y no quiero quitarlo.
-	private static final int PORT = 1600;
-	
-	// Lista de clientes conectados
-    private static List<PrintWriter> clients = new ArrayList<>(); 
+    private static final int PORT = 1600;
+    private static final Map<String, ObjectOutputStream> clients = new HashMap<>();
 
     public static void main(String[] args) {
         System.out.println("Servidor iniciado en el puerto " + PORT);
-        
+
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
-                new ClientHandler(serverSocket.accept()).start(); // Acepta conexiones
+                Socket clientSocket = serverSocket.accept();
+                new ClientHandler(clientSocket).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -34,44 +26,74 @@ public class ChatServer {
 
     private static class ClientHandler extends Thread {
         private Socket socket;
-        private PrintWriter out;
+        private ObjectOutputStream out;
+        private ObjectInputStream in;
+        private String username;
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
         }
 
         public void run() {
-            try (
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            ) {
-                out = new PrintWriter(socket.getOutputStream(), true);
-                synchronized (clients) {
-                    clients.add(out);
+            try {
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(socket.getInputStream());
+
+                // Leer el primer mensaje (conexión)
+                Message message = (Message) in.readObject();
+                if (message.getType() == MessageType.CONNECT) {
+                    username = message.getSender();
+
+                    synchronized (clients) {
+                        if (clients.containsKey(username)) {
+                            out.writeObject(new Message(MessageType.MESSAGE, "Servidor", "El nombre ya está en uso."));
+                            out.flush();
+                            socket.close();
+                            return;
+                        }
+                        clients.put(username, out);
+                    }
+
+                    System.out.println(username + " se ha conectado.");
+                    broadcast(new Message(MessageType.MESSAGE, "Servidor", username + " se ha unido al chat."));
                 }
-                String message;
-                while ((message = in.readLine()) != null) {
-                    System.out.println("Mensaje recibido: " + message);
+
+                // Manejar mensajes del usuario
+                while (true) {
+                    message = (Message) in.readObject();
+                    if (message.getType() == MessageType.DISCONNECT) {
+                        break;
+                    }
                     broadcast(message);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println(username + " se ha desconectado inesperadamente.");
             } finally {
-                synchronized (clients) {
-                    clients.remove(out);
-                }
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                disconnectUser();
+            }
+        }
+
+        private void broadcast(Message message) {
+            synchronized (clients) {
+                for (ObjectOutputStream clientOut : clients.values()) {
+                    try {
+                        clientOut.writeObject(message);
+                        clientOut.flush();
+                    } catch (IOException ignored) {}
                 }
             }
         }
 
-        private void broadcast(String message) {
-            synchronized (clients) {
-                for (PrintWriter client : clients) {
-                    client.println(message);
+        private void disconnectUser() {
+            if (username != null) {
+                synchronized (clients) {
+                    clients.remove(username);
                 }
+                System.out.println(username + " se ha desconectado.");
+                broadcast(new Message(MessageType.MESSAGE, "Servidor", username + " ha salido del chat."));
+                try {
+                    socket.close();
+                } catch (IOException ignored) {}
             }
         }
     }
