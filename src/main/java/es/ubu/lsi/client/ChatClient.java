@@ -1,41 +1,61 @@
 package es.ubu.lsi.client;
 
+import es.ubu.lsi.common.Message;
+import es.ubu.lsi.common.MessageType;
+
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
+import java.util.Scanner;
 
-/**
- * Cliente de chat que se conecta al servidor, permite enviar y recibir mensajes.
- */
 public class ChatClient {
-
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 1600;
 
     public static void main(String[] args) {
         try (
             Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            Scanner scanner = new Scanner(System.in)
         ) {
+            System.out.print("Introduce tu nombre de usuario: ");
+            String username = scanner.nextLine();
+
+            // Enviamos el mensaje de conexión
+            out.writeObject(new Message(MessageType.CONNECT, username, ""));
+            out.flush();
+
             // Hilo para recibir mensajes
             new Thread(() -> {
-                String serverMessage;
                 try {
-                    while ((serverMessage = in.readLine()) != null) {
-                        System.out.println(serverMessage);
+                    while (true) {
+                        Message msg = (Message) in.readObject();
+                        System.out.println("<" + msg.getSender() + "> patrocina el mensaje: " + msg.getContent());
                     }
-                } catch (IOException e) {
-                    System.out.println("*Conexión terminada*");
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("* Conexión terminada *");
                 }
             }).start();
 
-            // Envío de mensajes al servidor
-            String userMessage;
-            while ((userMessage = userInput.readLine()) != null) {
-                out.println(userMessage);
-                if (userMessage.equalsIgnoreCase("/exit")) {
+            // Bucle para enviar mensajes
+            while (true) {
+                String userInput = scanner.nextLine();
+
+                if (userInput.equalsIgnoreCase("/logout")) {
+                    out.writeObject(new Message(MessageType.DISCONNECT, username, ""));
+                    out.flush();
                     break;
+                } else if (userInput.startsWith("/ban ")) {
+                    String target = userInput.substring(5);
+                    out.writeObject(new Message(MessageType.BAN, username, target));
+                    out.flush();
+                } else if (userInput.startsWith("/unban ")) {
+                    String target = userInput.substring(7);
+                    out.writeObject(new Message(MessageType.UNBAN, username, target));
+                    out.flush();
+                } else {
+                    out.writeObject(new Message(MessageType.MESSAGE, username, userInput));
+                    out.flush();
                 }
             }
 
