@@ -44,7 +44,7 @@ public class ChatServer {
 
                 synchronized (clients) {
                     if (clients.containsKey(username)) {
-                        out.writeObject(new Message(MessageType.MESSAGE, "Servidor", "El nombre ya está en uso"));
+                        out.writeObject(new Message(MessageType.MESSAGE, "Servidor", "El nombre está en uso"));
                         out.flush();
                         socket.close();
                         return;

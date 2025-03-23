@@ -33,7 +33,7 @@ public class ChatClient {
                         System.out.println("<" + msg.getSender() + "> patrocina el mensaje: " + msg.getContent());
                     }
                 } catch (IOException | ClassNotFoundException e) {
-                    System.out.println("* Conexión terminada *");
+                    System.out.println("* La conexion ha sido finalizada *");
                 }
             }).start();
 
