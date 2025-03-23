@@ -9,9 +9,12 @@ import java.util.*;
 
 /**
  * La clase ChatServer implementa un servidor de chat multicliente
- * que maneja la conexión de usuarios, transmisión de mensajes, y comandos 
+ * que maneja la conexión de usuarios, transmisión de mensajes, y comandos
  * como banear o desbloquear usuarios.
  * Utiliza sockets para la comunicación en red y gestiona a los clientes de forma concurrente.
+ *
+ * @author Elisa Rodríguez Domínguez
+ * @version 4.0
  */
 public class ChatServer {
 

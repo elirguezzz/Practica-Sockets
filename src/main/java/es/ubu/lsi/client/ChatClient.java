@@ -8,14 +8,24 @@ import java.net.Socket;
 import java.util.Scanner;
 
 /**
- * ChatClient es un cliente de chat que se conecta a un servidor, 
+ * ChatClient es un cliente de chat que se conecta a un servidor,
  * permite enviar y recibir mensajes, y soporta comandos como logout, ban y unban.
  * Este programa utiliza sockets para la comunicación en red.
+ *
+ * @author Elisa Rodríguez Domínguez
+ * @version 4.0
  */
 public class ChatClient {
 
     private static final String SERVER_ADDRESS = "localhost"; // Dirección del servidor
     private static final int SERVER_PORT = 1600; // Puerto del servidor
+
+    /**
+     * Constructor por defecto de la clase ChatClient.
+     */
+    public ChatClient() {
+        // Constructor vacío predeterminado
+    }
 
     /**
      * Método principal del cliente de chat.

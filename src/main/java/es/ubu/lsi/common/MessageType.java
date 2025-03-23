@@ -4,9 +4,12 @@ import java.io.Serializable;
 
 /**
  * La enumeración MessageType representa los diferentes tipos de mensajes
- * que pueden ser intercambiados en un sistema de chat. Implementa la 
- * interfaz {@link Serializable} para permitir su transmisión a través 
+ * que pueden ser intercambiados en un sistema de chat. Implementa la
+ * interfaz {@link Serializable} para permitir su transmisión a través
  * de streams.
+ *
+ * @author Elisa Rodríguez Domínguez
+ * @version 4.0
  */
 public enum MessageType implements Serializable {
     

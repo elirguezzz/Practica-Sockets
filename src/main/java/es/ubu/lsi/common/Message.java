@@ -7,6 +7,9 @@ import java.io.Serializable;
  * que incluye su tipo, el remitente y el contenido.
  * Implementa la interfaz {@link Serializable} para permitir la
  * transmisión de objetos a través de streams.
+ *
+ * @author Elisa Rodríguez Domínguez
+ * @version 4.0
  */
 public class Message implements Serializable {
     

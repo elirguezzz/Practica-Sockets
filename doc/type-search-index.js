@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"es.ubu.lsi.client","l":"ChatClient"},{"p":"es.ubu.lsi.server","l":"ChatServer"},{"p":"es.ubu.lsi.common","l":"Message"},{"p":"es.ubu.lsi.common","l":"MessageType"}];updateSearchResults();
