@@ -26,6 +26,6 @@ Este proyecto implementa un sistema de chat basado en sockets TCP. El objetivo e
 ---
 
 ## COMENTARIOS.
-Uso el puerto  1600 en vez de el 1500 ya que lo tengo en uso y no queria detener esa ejecución y en cuento a la ejecución del proyecto, no he seguido la estructura de clases que 
-indica la practica asi que yo ejecuto el servidor a traves de ChatServer y inicio los clientes a traves de la clase ChatClient, espero que no cause ningun incomveniente.
+Uso el puerto  1600 en vez de el 1500 ya que lo tengo en uso y no queria detener esa ejecución y en cuanto a la ejecución del proyecto, no he seguido la estructura de clases que 
+indica la practica, asi que yo ejecuto el servidor a traves de ChatServer y inicio los clientes a traves de la clase ChatClient, espero que no cause ningun inconveniente.
 
